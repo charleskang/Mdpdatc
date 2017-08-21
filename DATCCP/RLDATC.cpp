@@ -4,6 +4,7 @@
 // RLDATC.cpp : Defines the entry point for the console application.
 //
   
+//test origin
 
 #include "stdafx.h"
 #include <iostream>
