@@ -1,0 +1,16 @@
+2
+1	0	200	200	0.0	0.0	3
+2	0	200	200	0.0	0.0	3
+
+
+m_arrVehicle[i].v_no 
+m_arrVehicle[i].curr_loc_no 
+m_arrVehicle[i].max_capa 
+m_arrVehicle[i].avail_capa 
+m_arrVehicle[i].comp_time 
+m_arrVehicle[i].check_tag 
+m_arrVehicle[i].weight;
+
+
+
+
