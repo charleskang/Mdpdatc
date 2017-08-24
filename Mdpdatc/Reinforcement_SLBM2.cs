@@ -23,13 +23,13 @@ namespace Mdpdatc
 
         public int seed = 1;
 
-        public double b_no = 10;
-        public double m_no = 10;
+        public double b_no = 100;
+        public double m_no = 100;
         public double lp_no = 5;
         public double lu_no = 5;
         public double dp_no = 5;
         public double du_no = 5;
-        public double beta_no = 5;
+        public double beta_no = 50;
 
         //public int d_no = 10;
         //public int n_no = 10;
@@ -82,8 +82,8 @@ namespace Mdpdatc
         {
             datc_ctrl = new DATCWrapper();
             //double kk = datc_ctrl.test(0.1);
-            //datc_ctrl.main_from_external();
-            datc_ctrl.InitialRunDATC();
+            datc_ctrl.main_from_external();
+            //datc_ctrl.InitialRunDATC();
             // double tt = datc_ctrl.GetCurrentCapacity(1);
 
             initialize();
@@ -269,19 +269,8 @@ namespace Mdpdatc
             //2.arrived_beta, arrived_del_m simulation
             //(replace)this should be replaced by the incoming parameter after the simul is implemented
             rnd = randomGen();
-            double[] sector = new double[beta_no];
-            for (int beta = 0; beta < beta_no; beta++)
-                sector[beta] = (double)beta / (double)beta_no;
-
-            int arrived_beta = 0;
-            for (int beta = beta_no - 1; beta >= 0; beta--)
-            {
-                if (rnd >= sector[beta])
-                {
-                    arrived_beta = beta;
-                    break;
-                }
-            }
+            double arrived_beta = rnd* beta_no;
+            
 
             //lp: length pickup 
             //dp: due pickup
@@ -539,7 +528,7 @@ namespace Mdpdatc
                 //(replace) code below will be replaced
 
                 double cur_capa = datc_ctrl.GetCurrentCapacity(curr_time);
-                double cur_msd = datc_ctrl.GetCurrentMSD(curr_time);
+                double cur_msd = datc_ctrl.GetCurrentET(curr_time);
 
                 cur_state.b_idx = cur_capa;
                 cur_state.m_idx = cur_msd;
@@ -576,7 +565,7 @@ namespace Mdpdatc
                         d_pos_x, d_pos_y, curr_time);
 
                     double ret_b = datc_ctrl.GetCurrentCapacity(curr_time);
-                    double ret_m = datc_ctrl.GetCurrentMSD(curr_time);
+                    double ret_m = datc_ctrl.GetCurrentET(curr_time);
                     //(need to implement) also need to set the reward value
                    
                     imsi_next_state = new State_nn(ret_b, ret_m, lp_idx, lu_idx, dp_idx, du_idx, beta_idx);

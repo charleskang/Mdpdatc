@@ -1196,7 +1196,7 @@ int SimulDatc::main_from_external()
 
 	//vector<int>::iterator ivec_it;
 
-
+	/*
 	m->InterRunDATC(
 		10.0, // demand,
 		16.0, // P_minW,
@@ -1211,11 +1211,11 @@ int SimulDatc::main_from_external()
 		12.1, // D_y_pos,
 		13.5// current_time
 	);
-
+	*/
 	//cout << "Current Capa: " << GetCurrentCapacity(13.5) << endl;
 	//cout << "Current ET: " << GetCurrentET(13.5) << endl;
 
-	m->RejectNewOrder(13.5 /*current_time*/);
+	//m->RejectNewOrder(13.5 /*current_time*/);
 
 	return 0;
 }
