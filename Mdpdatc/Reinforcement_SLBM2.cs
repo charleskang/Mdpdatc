@@ -23,13 +23,13 @@ namespace Mdpdatc
 
         public int seed = 1;
 
-        public int b_no = 10;
-        public int m_no = 10;
-        public int lp_no = 5;
-        public int lu_no = 5;
-        public int dp_no = 5;
-        public int du_no = 5;
-        public int beta_no = 5;
+        public double b_no = 10;
+        public double m_no = 10;
+        public double lp_no = 5;
+        public double lu_no = 5;
+        public double dp_no = 5;
+        public double du_no = 5;
+        public double beta_no = 5;
 
         //public int d_no = 10;
         //public int n_no = 10;
@@ -58,18 +58,33 @@ namespace Mdpdatc
         public double rho = 0.00;
         public double cur_int_arr_time = 0.00;
 
+        public double init_pos_x = 50.0;
+        public double init_pos_y = 50.0;
+        public double curr_pos_x;
+        public double curr_pos_y;
+        public double p_pos_x;
+        public double p_pos_y;
+        public double d_pos_x;
+        public double d_pos_y;
+
+        public double curr_time=9.00;
+      
+
         public FeedforwardNetwork network_accept;
         public FeedforwardNetwork network_reject;
 
         public Train train_accept;
         public Train train_reject;
+
+        public DATCWrapper datc_ctrl;
+
         public Reinforcement_SLBM2()
         {
-            DATCWrapper temp = new DATCWrapper();
-            double kk = temp.test(0.1);
-            temp.main_from_external();
-            //temp.InitialRunDATC();
-            double tt = temp.GetCurrentCapacity(1);
+            datc_ctrl = new DATCWrapper();
+            //double kk = datc_ctrl.test(0.1);
+            //datc_ctrl.main_from_external();
+            datc_ctrl.InitialRunDATC();
+            // double tt = datc_ctrl.GetCurrentCapacity(1);
 
             initialize();
             //this.q = new double[3, 2];
@@ -185,8 +200,11 @@ namespace Mdpdatc
         {
 
             Reward temp = new Reward();
-            double calc = cst.beta_idx * 0.1;
-            temp.rVal = calc;
+            double unit_price = 10.00;
+            double price = (nst.b_idx - cst.b_idx) * unit_price;
+            double cost_func = (nst.m_idx - cst.m_idx) * 10.00;
+            
+            temp.rVal = price - cost_func;
             //temp.rVal = 0.1;
             //if (cat.a_idx == 0)
             //    temp.rVal = 0.2;
@@ -246,6 +264,8 @@ namespace Mdpdatc
             total_time += int_arr_time;
             cur_int_arr_time = int_arr_time;
 
+            curr_time += int_arr_time;
+
             //2.arrived_beta, arrived_del_m simulation
             //(replace)this should be replaced by the incoming parameter after the simul is implemented
             rnd = randomGen();
@@ -263,7 +283,34 @@ namespace Mdpdatc
                 }
             }
 
+            //lp: length pickup 
+            //dp: due pickup
+            //lu: length delivery 
+            //du: due delivery
+            //generating pick-up and delivery position
+            rnd = randomGen();
+            p_pos_x = rnd*100;
+            rnd = randomGen();
+            p_pos_y = rnd * 100;
+            rnd = randomGen();
+            d_pos_x = rnd * 100;
+            rnd = randomGen();
+            d_pos_y = rnd * 100;
+
+            double arrived_lp = 0.00;
+            double arrived_lu = 0.00;
+            arrived_lp = Math.Sqrt(Math.Pow(curr_pos_x - p_pos_x, 2) + Math.Pow(curr_pos_y - p_pos_y, 2));
+            arrived_lu = Math.Sqrt(Math.Pow(d_pos_x - p_pos_x, 2) + Math.Pow(d_pos_y - p_pos_y, 2));
+
+            double arrived_dp = 0.00;
+            double arrived_du = 0.00;
+            rnd = randomGen();
+            arrived_dp = curr_time + rnd;
+            rnd = randomGen();
+            arrived_du = arrived_dp + rnd;
+
             //(replace)this should be also replaced
+            /*
             rnd = randomGen();
 
             sector = new double[lp_no];
@@ -279,6 +326,7 @@ namespace Mdpdatc
                     break;
                 }
             }
+            
 
             //(replace)this should be also replaced
             rnd = randomGen();
@@ -296,6 +344,7 @@ namespace Mdpdatc
                     break;
                 }
             }
+            
 
             //(replace)this should be also replaced
             rnd = randomGen();
@@ -330,13 +379,14 @@ namespace Mdpdatc
                     break;
                 }
             }
-            /*
+            */
+            
             Console.Out.WriteLine(arrived_lp + ","+
                                     arrived_dp+","+
                                     arrived_lu+","+
                                     arrived_du+","+
                                     arrived_beta);
-            */
+            
             return new Event_bm(arrived_lp, arrived_dp, arrived_lu, arrived_du, arrived_beta);
 
         }
@@ -460,13 +510,13 @@ namespace Mdpdatc
 
             int b_idx = 0;
             int m_idx = 0;
-            int lp_idx = 0;
-            int lu_idx = 0;
-            int dp_idx = 0;
-            int du_idx = 0;
-            int beta_idx = 0;
+            double lp_idx = 0.00;
+            double lu_idx = 0.00;
+            double dp_idx = 0.00;
+            double du_idx = 0.00;
+            double beta_idx = 0.00;
 
-            bool departure_flag = false;
+            //bool departure_flag = false;
             //learning
             for (int loop = 1; loop < 10000; loop++)
             {
@@ -474,146 +524,134 @@ namespace Mdpdatc
                 //(replace)this part should be replaced
                 //inter arrival time should be accumulated and stored somewhere!!
                 Event_bm event_occurred = this.simulateArrival();
-                lp_idx = event_occurred.lp_idx;
-                lu_idx = event_occurred.lu_idx;
-                dp_idx = event_occurred.dp_idx;
-                du_idx = event_occurred.du_idx;
-                beta_idx = event_occurred.beta_idx;
+                lp_idx = event_occurred.db_lp_idx;
+                lu_idx = event_occurred.db_lu_idx;
+                dp_idx = event_occurred.db_dp_idx;
+                du_idx = event_occurred.db_du_idx;
+                beta_idx = event_occurred.db_beta_idx;
 
-                departure_flag = false;
+
+                
+
                 //2. check RC to see if there are any departures since the last decision epoch.
-                //3. In case of departure events, update current capacity(b) and msd(m) information. 
+                //Regardless of whether there was departure or not, update current capacity(b) and msd(m) information. 
                 //cur_state represents the current loading information + event
                 //(replace) code below will be replaced
-                if (cur_state.b_idx > 0)
+
+                double cur_capa = datc_ctrl.GetCurrentCapacity(curr_time);
+                double cur_msd = datc_ctrl.GetCurrentMSD(curr_time);
+
+                cur_state.b_idx = cur_capa;
+                cur_state.m_idx = cur_msd;
+
+                this.sampleAction_egreedyNN(epsilon, cur_state);
+
+                //if exceeding capa, just reject the reqeust
+                //Console.Write("chk1=" + cur_state.b_idx +" "+ beta_idx);
+                //Console.Write("a1="+max_action.a_idx);
+                if ((cur_state.b_idx + beta_idx) >= b_no)
+                    max_action = A[1];
+
+                //if (cur_state.m_idx == (m_no - 1) && max_action.a_idx == 0)
+                //    max_action = A[1];
+
+                //Console.Write("chk2=" + cur_state.b_idx + " " + beta_idx);
+                //Console.Write("a2=" + max_action.a_idx);
+
+                Qfactor_nn cur_q;
+                if (max_action.a_idx == 0)
+                    cur_q = cur_q_accept;
+                else
+                    cur_q = cur_q_reject;
+
+                State_nn imsi_next_state = new State_nn();
+                if (max_action.a_idx == 0)
                 {
-                    double rnd = randomGen();
-                    if (rnd > 0.6)
-                    {
-                        departure_flag = true;
-                        Console.WriteLine("departed");
-                        cur_state.b_idx = cur_state.b_idx - 1;
-                        if (cur_state.m_idx > 0)
-                            cur_state.m_idx = cur_state.m_idx - 1;
-                    }
+                    //4. With ‘Accept’ flag, OAC sends RC the following information:  
+                    //weight, due date(pickup, delivery), traveling distance(pickup, delivery)
+                    //(replace)the below 2 should be replaced!!
 
-                }
+                    datc_ctrl.InterRunDATC(beta_idx, dp_idx, dp_idx + 0.1, 0.1,
+                        p_pos_x, p_pos_y, du_idx, du_idx + 0.1, 0.1,
+                        d_pos_x, d_pos_y, curr_time);
 
-                if (!departure_flag)
-                {
-                    //if (Q[1].action.a_idx != 0 && Q[1].action.a_idx != 1)
-                    //     Console.WriteLine("something changed");
-
-                    //max_action will be determined
-                    //max_action.a_idx = -100;
-
-                    // if (Q[1].action.a_idx != 0 && Q[1].action.a_idx != 1)
-                    //     Console.WriteLine("something changed");
+                    double ret_b = datc_ctrl.GetCurrentCapacity(curr_time);
+                    double ret_m = datc_ctrl.GetCurrentMSD(curr_time);
+                    //(need to implement) also need to set the reward value
                    
-                    this.sampleAction_egreedyNN(epsilon, cur_state);
-                    
-                    //if exceeding capa, just reject the reqeust
-                    //Console.Write("chk1=" + cur_state.b_idx +" "+ beta_idx);
-                    //Console.Write("a1="+max_action.a_idx);
-                    if ((cur_state.b_idx + beta_idx) >= b_no)
-                        max_action = A[1];
-
-                    if (cur_state.m_idx == (m_no - 1) && max_action.a_idx == 0)
-                        max_action = A[1];
-
-                    //Console.Write("chk2=" + cur_state.b_idx + " " + beta_idx);
-                    //Console.Write("a2=" + max_action.a_idx);
-
-                    Qfactor_nn cur_q;
-                    if (max_action.a_idx == 0)
-                        cur_q = cur_q_accept;
-                    else
-                        cur_q = cur_q_reject;
-
-                    State_nn imsi_next_state = new State_nn();
-                    if (max_action.a_idx == 0)
-                    {
-                        //4. With ‘Accept’ flag, OAC sends RC the following information:  
-                        //weight, due date(pickup, delivery), traveling distance(pickup, delivery)
-                        //(replace)the below 2 should be replaced!!
-                        int ret_b = cur_state.b_idx + beta_idx;
-                        int ret_m = cur_state.m_idx + 1;
-                        //(need to implement) also need to set the reward value
-                        if (ret_b > b_no)
-                            Console.Write("");
-                        imsi_next_state = new State_nn(ret_b, ret_m, lp_idx, lu_idx, dp_idx, du_idx, beta_idx);
-                    }
-                    else
-                    {
-                        int ret_b = cur_state.b_idx;
-                        int ret_m = cur_state.m_idx;
-                        //(need to implement) also need to set the reward value
-
-                        imsi_next_state = new State_nn(ret_b, ret_m, lp_idx, lu_idx, dp_idx, du_idx, beta_idx);
-                    }
-
-                    //5. With all information provided by RC, 
-                    //OAC calculates Q-value for the following state-action pair: 
-                    //Q(S, accept), Q(S, reject)
-
-                    /*
-                    State_bm found_cur_imsi_state;
-
-                    cur_state = S.Find(x => x.b_idx == imsi_state.b_idx &&
-                                                  x.m_idx == imsi_state.m_idx &&
-                                                  x.lp_idx == imsi_state.lp_idx &&
-                                                  x.lu_idx == imsi_state.lu_idx &&
-                                                  x.dp_idx == imsi_state.dp_idx &&
-                                                  x.du_idx == imsi_state.du_idx &&
-                                                  x.beta_idx == imsi_state.beta_idx);
-
-
-                    if (cur_state == null) throw new Exception();
-                    */
-
-
-
-                    //next_state = this.sampleNextStateNN(imsi_next_state, cur_state, max_action);
-
-                    next_state = imsi_next_state;
-
-                    
-
-                    /*
-                    Qfactor cur_q = Q.Find(x => x.state_bm.b_idx == cur_state.b_idx &&
-                                                x.state_bm.m_idx == cur_state.m_idx &&
-                                                x.state_bm.lp_idx == cur_state.lp_idx &&
-                                                x.state_bm.lu_idx == cur_state.lu_idx &&
-                                                x.state_bm.dp_idx == cur_state.dp_idx &&
-                                                x.state_bm.du_idx == cur_state.du_idx &&
-                                                x.state_bm.beta_idx == cur_state.beta_idx &&
-                                                x.action.a_idx == max_action.a_idx);
-                    */
-                    total_reward += rewardNN(cur_state, next_state, max_action).rVal;
-                    rho = (1.00 - betas) * rho + betas * total_reward / total_time;
-                    //Just regular MDP with Relative Q-Learning
-                    cur_q.qval = (1 - alpha) * cur_q.qval + alpha * (rewardNN(cur_state, next_state, max_action).rVal - rho * cur_int_arr_time + eta * maxQ(next_state));
-
-                    NN_train(cur_state, max_action, cur_q);
-
-
-
-                    cur_state.b_idx = next_state.b_idx;
-                    cur_state.m_idx = next_state.m_idx;
-                    cur_state.lp_idx = next_state.lp_idx;
-                    cur_state.lu_idx = next_state.lu_idx;
-                    cur_state.dp_idx = next_state.dp_idx;
-                    cur_state.du_idx = next_state.du_idx;
-                    cur_state.beta_idx = next_state.beta_idx;
-
-                    //Console.Out.WriteLine(next_state.k_idx + "==" + next_state.d_idx);
-                    //9. OAC updates capacity information and go to 2 until loop limit is reached
-
-                    if (loop % 1000 == 0)
-                        Console.Out.WriteLine(loop);
-
-                    //state_history.Add(cur_state);
+                    imsi_next_state = new State_nn(ret_b, ret_m, lp_idx, lu_idx, dp_idx, du_idx, beta_idx);
                 }
+                else
+                {
+                    double ret_b = cur_state.b_idx;
+                    double ret_m = cur_state.m_idx;
+                    //(need to implement) also need to set the reward value
+
+                    imsi_next_state = new State_nn(ret_b, ret_m, lp_idx, lu_idx, dp_idx, du_idx, beta_idx);
+                }
+
+                //5. With all information provided by RC, 
+                //OAC calculates Q-value for the following state-action pair: 
+                //Q(S, accept), Q(S, reject)
+
+                /*
+                State_bm found_cur_imsi_state;
+
+                cur_state = S.Find(x => x.b_idx == imsi_state.b_idx &&
+                                                x.m_idx == imsi_state.m_idx &&
+                                                x.lp_idx == imsi_state.lp_idx &&
+                                                x.lu_idx == imsi_state.lu_idx &&
+                                                x.dp_idx == imsi_state.dp_idx &&
+                                                x.du_idx == imsi_state.du_idx &&
+                                                x.beta_idx == imsi_state.beta_idx);
+
+
+                if (cur_state == null) throw new Exception();
+                */
+
+
+
+                //next_state = this.sampleNextStateNN(imsi_next_state, cur_state, max_action);
+
+                next_state = imsi_next_state;
+
+                    
+
+                /*
+                Qfactor cur_q = Q.Find(x => x.state_bm.b_idx == cur_state.b_idx &&
+                                            x.state_bm.m_idx == cur_state.m_idx &&
+                                            x.state_bm.lp_idx == cur_state.lp_idx &&
+                                            x.state_bm.lu_idx == cur_state.lu_idx &&
+                                            x.state_bm.dp_idx == cur_state.dp_idx &&
+                                            x.state_bm.du_idx == cur_state.du_idx &&
+                                            x.state_bm.beta_idx == cur_state.beta_idx &&
+                                            x.action.a_idx == max_action.a_idx);
+                */
+                total_reward += rewardNN(cur_state, next_state, max_action).rVal;
+                rho = (1.00 - betas) * rho + betas * total_reward / total_time;
+                //Just regular MDP with Relative Q-Learning
+                cur_q.qval = (1 - alpha) * cur_q.qval + alpha * (rewardNN(cur_state, next_state, max_action).rVal - rho * cur_int_arr_time + eta * maxQ(next_state));
+
+                NN_train(cur_state, max_action, cur_q);
+
+
+
+                cur_state.b_idx = next_state.b_idx;
+                cur_state.m_idx = next_state.m_idx;
+                cur_state.lp_idx = next_state.lp_idx;
+                cur_state.lu_idx = next_state.lu_idx;
+                cur_state.dp_idx = next_state.dp_idx;
+                cur_state.du_idx = next_state.du_idx;
+                cur_state.beta_idx = next_state.beta_idx;
+
+                //Console.Out.WriteLine(next_state.k_idx + "==" + next_state.d_idx);
+                //9. OAC updates capacity information and go to 2 until loop limit is reached
+
+                if (loop % 1000 == 0)
+                    Console.Out.WriteLine(loop);
+
+                //state_history.Add(cur_state);
+                
             }
 
             //int zeroval_count = 0;

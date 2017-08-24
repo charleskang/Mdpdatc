@@ -9,13 +9,13 @@ namespace Mdpdatc
     class State_nn
     {
 
-        public int b_idx; //1-st dimension, parcel capacity
-        public int m_idx; //2-nd dimension, msd
-        public int lp_idx;
-        public int lu_idx;
-        public int dp_idx;
-        public int du_idx;
-        public int beta_idx; //(event)3-rd dimension, incoming parcel's capacity 
+        public double b_idx; //1-st dimension, parcel capacity
+        public double m_idx; //2-nd dimension, msd
+        public double lp_idx;
+        public double lu_idx;
+        public double dp_idx;
+        public double du_idx;
+        public double beta_idx; //(event)3-rd dimension, incoming parcel's capacity 
 
 
 
@@ -34,7 +34,8 @@ namespace Mdpdatc
 
 
         //general state (generic + event)
-        public State_nn(int b_idx, int m_idx, int lp_idx, int lu_idx, int dp_idx, int du_idx, int beta_idx)
+        public State_nn(double b_idx, double m_idx,
+            double lp_idx, double lu_idx, double dp_idx, double du_idx, double beta_idx)
         {
             this.b_idx = b_idx;
             this.m_idx = m_idx;

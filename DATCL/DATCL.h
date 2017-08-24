@@ -35,6 +35,7 @@ namespace DATCL {
 		double GetCurrentCapacity(double current_time);
 		double GetCurrentET(double current_time);
 		void RejectNewOrder(double current_time);
+		double GetCurrentMSD(double current_time);
 	private:
 		SimulDatc *myCppClass;
 	};

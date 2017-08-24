@@ -26,7 +26,8 @@ namespace Mdpdatc
         }
 
 
-        public void setQfactor_nn(int b, int m, int lp, int lu, int dp, int du, int beta, Action action, double val)
+        public void setQfactor_nn(double b, double m,
+            double lp, double lu, double dp, double du, double beta, Action action, double val)
         {
             State_nn temp = new State_nn(b, m, lp, lu, dp, du, beta);
             this.state = temp;

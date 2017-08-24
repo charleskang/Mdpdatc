@@ -3,7 +3,6 @@
 #pragma once
 // RLDATC.cpp : Defines the entry point for the console application.
 //
-  
 //test origin
 
 #include "stdafx.h"
@@ -396,6 +395,7 @@ double GetAbsoluteET(double comp_time, double minW, double maxW)
 
 void PrintDATCResult()
 {
+	cout << "kkkkkkkkkkk" << endl;
 	ofstream ofs_init_routingresult;
 	time_t t = time(0);   // get time now
 	char buff[20];
@@ -783,7 +783,7 @@ void RunDATC_for_SelectedVehicle(int v_id)
 
 	//vRouteByVehicle_Cpy = vRouteByVehicle;
 
-	PrintDATCResult();
+	//PrintDATCResult();
 
 
 	for (int i = 0; i <= num_of_vehicle - 1; i++)
@@ -836,6 +836,7 @@ double GetCurrY(double x1, double y1, double x2, double y2, double trv_time)
 
 void Print_Pajek_Result(double current_time)
 {
+	cout << "tttttttttttttt" << endl;
 	ofstream ofs_pajek;
 	time_t t = time(0);   // get time now
 	char buff[20];
@@ -894,7 +895,7 @@ double SimulDatc::GetCurrentET(double current_time)
 	vector<CUSTOMER>::iterator ivec_it;
 
 	UpdateVehicleLocation(current_time);
-	Print_Pajek_Result(current_time);
+	//Print_Pajek_Result(current_time);
 	RemoveCompleteCustomer(current_time);
 
 	// Calculate current total et
@@ -913,13 +914,13 @@ double SimulDatc::GetCurrentET(double current_time)
 	return current_et;
 }
 
-double GetCurrentMSD(double current_time)
+double SimulDatc::GetCurrentMSD(double current_time)
 {
 	bool bErase = false;
 	vector<CUSTOMER>::iterator ivec_it;
 
 	UpdateVehicleLocation(current_time);
-	Print_Pajek_Result(current_time);
+	//Print_Pajek_Result(current_time);
 	RemoveCompleteCustomer(current_time);
 
 	// Calculate current total MSD
@@ -1090,11 +1091,11 @@ void SimulDatc::InterRunDATC(
 	vector<CUSTOMER>::iterator ivec_it;
 
 	UpdateVehicleLocation(current_time);
-	Print_Pajek_Result(current_time);
+	//Print_Pajek_Result(current_time);
 	RemoveCompleteCustomer(current_time);
 
 	int new_c_id = max_c_id + 1;
-	int sel_vehicle = 0;
+	int sel_vehicle = 1; //modified by yck 8.21
 
 	// Add pickup order
 	CUSTOMER newcustomer_pickup;
@@ -1146,8 +1147,8 @@ void SimulDatc::InterRunDATC(
 
 	vCurrRoutes = vRouteByVehicle[sel_vehicle - 1];
 
-	// Assign vehicle
-	sel_vehicle = GetVehicle(0, new_c_id - 1, P_minW, P_maxW);
+	// Assign vehicle  modified by yck..
+	//sel_vehicle = GetVehicle(0, new_c_id - 1, P_minW, P_maxW);
 
 	if (sel_vehicle == 0)
 		sel_vehicle = 1;

@@ -69,6 +69,11 @@ void DATCL::DATCWrapper::RejectNewOrder(double current_time)
 	myCppClass->RejectNewOrder(current_time);
 }
 
+double DATCL::DATCWrapper::GetCurrentMSD(double current_time)
+{
+	return myCppClass->GetCurrentMSD(current_time);
+}
+
 /*
 void 	DATCL::DATCWrapper::InterRunDATC(
 	double demand,

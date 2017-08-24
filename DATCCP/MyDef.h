@@ -184,7 +184,7 @@ void RemoveCompleteCustomer(double current_time);
 		 double current_time);
 		 */
 	 //void InterRunDATC(double demand, double D_minW, double D_maxW, double D_service_time, double D_x_pos, double D_y_pos, double P_x_pos, double P_y_pos, double remaining_pickuptime, double current_time, double P_service_time);
-
+	 double GetCurrentMSD(double current_time);
 	 double GetCurrentCapacity(double current_time);
 	 double GetCurrentET(double current_time);
 	 void RejectNewOrder(double current_time);
